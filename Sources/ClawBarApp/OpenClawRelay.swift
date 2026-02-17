@@ -35,9 +35,10 @@ public enum OpenClawRelay {
 
     /// Send a text message to OpenClaw and return the first text reply.
     /// Routes through Gateway WebSocket when enabled, falls back to CLI.
-    static func send(text: String, attachments: [AttachmentItem]) async throws -> OpenClawRelayResult {
+    /// When `onDelta` is provided and gateway mode is active, it streams partial text.
+    static func send(text: String, attachments: [AttachmentItem], onDelta: ((String) -> Void)? = nil) async throws -> OpenClawRelayResult {
         if GatewayRelay.isEnabled {
-            return try await GatewayRelay.send(text: text, attachments: attachments)
+            return try await GatewayRelay.send(text: text, attachments: attachments, onDelta: onDelta)
         }
         return try await sendViaCLI(text: text, attachments: attachments)
     }

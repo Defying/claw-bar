@@ -637,10 +637,17 @@ extension ClawBarViewModel {
 
     private func relayText(_ text: String, attachments: [AttachmentItem]) async {
         statusMessage = "Relaying to OpenClaw…"
+        isRelaying = true
+        streamingText = ""
         do {
-            let result = try await OpenClawRelay.send(text: text, attachments: attachments)
+            let result = try await OpenClawRelay.send(text: text, attachments: attachments) { [weak self] delta in
+                self?.streamingText = delta
+                self?.statusMessage = "Streaming…"
+            }
             lastRelayDurationMs = result.durationMs
             lastRelayRetryCount = result.retryCount
+            isRelaying = false
+            streamingText = ""
             if !result.text.isEmpty {
                 transcript += "\n🤖 \(result.text)"
                 appendChat(role: .assistant, text: result.text, attachments: [])
@@ -654,6 +661,8 @@ extension ClawBarViewModel {
                 statusMessage = "Relay complete (no text reply)"
             }
         } catch {
+            isRelaying = false
+            streamingText = ""
             // Non-fatal — keep transcript and surface the real reason.
             statusMessage = "OpenClaw relay failed: \(error.localizedDescription)"
             appendRecentError("Relay: \(error.localizedDescription)")

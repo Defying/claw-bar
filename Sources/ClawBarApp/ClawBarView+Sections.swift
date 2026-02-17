@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -135,6 +136,12 @@ extension ClawBarView {
                                     bubbleRow(for: message)
                                 }
 
+                                if model.isRelaying {
+                                    streamingBubble
+                                        .id("streaming-bubble")
+                                        .transition(.opacity)
+                                }
+
                                 if let state = model.assistantStateText {
                                     assistantStateRow(state)
                                 }
@@ -170,6 +177,11 @@ extension ClawBarView {
                             scrollToBottom(proxy, animated: true)
                         } else {
                             pendingUnread = true
+                        }
+                    }
+                    .onReceive(model.$streamingText.throttle(for: .milliseconds(100), scheduler: RunLoop.main, latest: true)) { _ in
+                        if isNearBottom {
+                            scrollToBottom(proxy, animated: true)
                         }
                     }
                     .onAppear {
@@ -521,6 +533,35 @@ extension ClawBarView {
         if type.contains("pdf") { return "doc.richtext" }
         if type.contains("text") { return "doc.text" }
         return "doc"
+    }
+
+    private var streamingBubble: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.7) : Color.black.opacity(0.45))
+                    .padding(.top, 5)
+
+                if model.streamingText.isEmpty {
+                    HStack(spacing: 4) {
+                        ForEach(0..<3, id: \.self) { i in
+                            Circle()
+                                .fill(Color.secondary)
+                                .frame(width: 6, height: 6)
+                                .opacity(0.6)
+                        }
+                    }
+                    .padding(.top, 6)
+                } else {
+                    Text(model.streamingText)
+                        .font(.callout)
+                        .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.95) : Color.black.opacity(0.88))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
+                }
+            }
+        }
     }
 
     private func assistantStateRow(_ text: String) -> some View {

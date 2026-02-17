@@ -64,6 +64,8 @@ public final class ClawBarViewModel: ObservableObject {
     @Published var gatewayAgentId: String = "main"
     @Published var isTestingGateway: Bool = false
     @Published var gatewayTestResult: String?
+    @Published var isRelaying: Bool = false
+    @Published var streamingText: String = ""
 
     // MARK: - Private
 

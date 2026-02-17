@@ -67,7 +67,8 @@ public enum GatewayRelay {
     // MARK: - Send
 
     /// Send a message to the gateway via WebSocket and wait for the full response.
-    static func send(text: String, attachments: [AttachmentItem]) async throws -> OpenClawRelayResult {
+    /// When `onDelta` is provided, it is called on @MainActor with accumulated text for each delta event.
+    static func send(text: String, attachments: [AttachmentItem], onDelta: ((String) -> Void)? = nil) async throws -> OpenClawRelayResult {
         let urlString = gatewayURL.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !urlString.isEmpty else {
             throw ClawBarError.networkError("Gateway URL is not configured. Open Settings → Connection.")
@@ -216,6 +217,10 @@ public enum GatewayRelay {
                                 responseText = text
                             }
                         }
+                    }
+
+                    if state == "delta" {
+                        onDelta?(responseText)
                     }
 
                     if state == "final" {
