@@ -644,6 +644,8 @@ extension ClawBarViewModel {
         isRelaying = true
         streamingText = ""
         Self.logRelay("start isRelaying=true gwMode=\(GatewayRelay.isEnabled)")
+        // Yield to let SwiftUI pick up the isRelaying change before blocking on the relay
+        try? await Task.sleep(for: .milliseconds(10))
         do {
             let result = try await OpenClawRelay.send(text: text, attachments: attachments) { [weak self] delta in
                 Self.logRelay("onDelta len=\(delta.count)")
