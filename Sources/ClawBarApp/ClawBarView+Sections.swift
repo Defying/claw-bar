@@ -136,7 +136,7 @@ extension ClawBarView {
                                     bubbleRow(for: message)
                                 }
 
-                                if model.isRelaying || model.isTranscribing {
+                                if model.isRelaying {
                                     streamingBubble
                                         .id("streaming-bubble")
                                 }
@@ -545,7 +545,7 @@ extension ClawBarView {
                 HStack(spacing: 6) {
                     ProgressView()
                         .controlSize(.small)
-                    Text(model.isTranscribing ? "Thinking…" : "Waiting for response…")
+                    Text("Thinking…")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
