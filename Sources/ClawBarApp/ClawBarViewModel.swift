@@ -66,6 +66,12 @@ public final class ClawBarViewModel: ObservableObject {
     @Published var gatewayTestResult: String?
     @Published var isRelaying: Bool = false
     @Published var streamingText: String = ""
+    static var relayDebugLog: [String] = []
+
+    static func logRelay(_ msg: String) {
+        relayDebugLog.append("[\(ISO8601DateFormatter().string(from: Date()).suffix(12))] \(msg)")
+        if relayDebugLog.count > 50 { relayDebugLog.removeFirst(relayDebugLog.count - 50) }
+    }
 
     // MARK: - Private
 

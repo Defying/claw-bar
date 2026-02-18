@@ -480,6 +480,10 @@ extension ClawBarViewModel {
         lines.append("Last Transcribe ms: \(lastTranscribeDurationMs.map(String.init) ?? "n/a")")
         lines.append("Last Relay ms: \(lastRelayDurationMs.map(String.init) ?? "n/a")")
         lines.append("Last Relay retries: \(lastRelayRetryCount)")
+        lines.append("isRelaying: \(isRelaying)")
+        lines.append("streamingText len: \(streamingText.count)")
+        lines.append("Gateway mode: \(GatewayRelay.isEnabled ? "enabled" : "disabled")")
+        lines.append("Relay debug log: \(Self.relayDebugLog.joined(separator: " | "))")
         lines.append("API req/min (60s): \(apiRateSnapshot.requestsLast60Seconds)")
         lines.append("API req/hour (60m): \(apiRateSnapshot.requestsLast60Minutes)")
         lines.append("API last status: \(apiRateSnapshot.lastStatusCode.map(String.init) ?? "n/a")")
@@ -639,10 +643,10 @@ extension ClawBarViewModel {
         statusMessage = "Relaying to OpenClaw…"
         isRelaying = true
         streamingText = ""
-        print("[Relay] isRelaying=true, starting send")
+        Self.logRelay("start isRelaying=true gwMode=\(GatewayRelay.isEnabled)")
         do {
             let result = try await OpenClawRelay.send(text: text, attachments: attachments) { [weak self] delta in
-                print("[Relay] onDelta called, len=\(delta.count)")
+                Self.logRelay("onDelta len=\(delta.count)")
                 self?.streamingText = delta
                 self?.statusMessage = "Streaming…"
             }

@@ -1,4 +1,7 @@
 import Foundation
+import os.log
+
+private let relayLog = Logger(subsystem: "com.openclaw.clawbar", category: "GatewayRelay")
 
 /// Connects directly to an OpenClaw Gateway WebSocket for chat.send / chat events.
 /// Replaces the CLI subprocess relay when a remote gateway URL is configured.
@@ -175,8 +178,10 @@ public enum GatewayRelay {
         }
 
         guard let activeRunId = runId else {
+            ClawBarViewModel.logRelay("ERROR: no runId received")
             throw ClawBarError.networkError("No runId received from chat.send")
         }
+        ClawBarViewModel.logRelay("got runId=\(activeRunId.prefix(8)) hasDelta=\(onDelta != nil)")
 
         // Step 6: Collect response — listen for chat/agent events matching our runId
         // Event format:
@@ -202,9 +207,9 @@ public enum GatewayRelay {
 
                 // Only process events for our runId
                 let eventRunId = payload["runId"] as? String ?? ""
-                let state = payload["state"] as? String ?? ""
+                let payloadState = payload["state"] as? String ?? ""
                 let stream = payload["stream"] as? String ?? ""
-                print("[GatewayRelay] event=\(event) state=\(state) stream=\(stream) runId=\(eventRunId.prefix(8)) activeRunId=\(activeRunId.prefix(8)) responseLen=\(responseText.count)")
+                ClawBarViewModel.logRelay("evt=\(event) st=\(payloadState) str=\(stream) rid=\(eventRunId.prefix(8)) arid=\(activeRunId.prefix(8)) rLen=\(responseText.count)")
                 guard eventRunId == activeRunId else { continue }
 
                 // Chat events — the authoritative source for response text
