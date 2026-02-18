@@ -136,13 +136,12 @@ extension ClawBarView {
                                     bubbleRow(for: message)
                                 }
 
-                                if model.isRelaying {
+                                if model.isRelaying || model.isTranscribing {
                                     streamingBubble
                                         .id("streaming-bubble")
-                                        .transition(.opacity)
                                 }
 
-                                if let state = model.assistantStateText {
+                                if !model.isRelaying, let state = model.assistantStateText {
                                     assistantStateRow(state)
                                 }
 
@@ -536,37 +535,36 @@ extension ClawBarView {
     }
 
     private var streamingBubble: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top, spacing: 10) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.7) : Color.black.opacity(0.45))
-                    .padding(.top, 5)
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.7) : Color.black.opacity(0.45))
+                .padding(.top, 5)
 
-                if model.streamingText.isEmpty {
-                    HStack(spacing: 6) {
-                        ProgressView()
-                            .controlSize(.small)
-                        Text("Thinking…")
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.top, 2)
-                } else {
-                    Text(model.streamingText)
+            if model.streamingText.isEmpty {
+                HStack(spacing: 6) {
+                    ProgressView()
+                        .controlSize(.small)
+                    Text(model.isTranscribing ? "Thinking…" : "Waiting for response…")
                         .font(.callout)
-                        .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.95) : Color.black.opacity(0.88))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .textSelection(.enabled)
+                        .foregroundStyle(.secondary)
                 }
+                .padding(.top, 2)
+            } else {
+                Text(model.streamingText)
+                    .font(.callout)
+                    .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.95) : Color.black.opacity(0.88))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.04))
-            )
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.04))
+        )
     }
 
     private func assistantStateRow(_ text: String) -> some View {
