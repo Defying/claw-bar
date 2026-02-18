@@ -239,11 +239,16 @@ public enum GatewayRelay {
                         completed = true
                     }
 
-                    // Agent assistant stream — backup text source
+                    // Agent assistant stream — primary streaming source
                     if stream == "assistant",
-                       let data = payload["data"] as? [String: Any],
-                       let text = data["text"] as? String, !text.isEmpty {
-                        responseText = text
+                       let data = payload["data"] as? [String: Any] {
+                        if let text = data["text"] as? String, !text.isEmpty {
+                            responseText = text
+                            onDelta?(responseText)
+                        } else if let delta = data["delta"] as? String, !delta.isEmpty {
+                            responseText += delta
+                            onDelta?(responseText)
+                        }
                     }
                 }
             }
