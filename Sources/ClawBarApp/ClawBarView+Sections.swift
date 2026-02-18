@@ -544,15 +544,14 @@ extension ClawBarView {
                     .padding(.top, 5)
 
                 if model.streamingText.isEmpty {
-                    HStack(spacing: 4) {
-                        ForEach(0..<3, id: \.self) { i in
-                            Circle()
-                                .fill(Color.secondary)
-                                .frame(width: 6, height: 6)
-                                .opacity(0.6)
-                        }
+                    HStack(spacing: 6) {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Thinking…")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(.top, 6)
+                    .padding(.top, 2)
                 } else {
                     Text(model.streamingText)
                         .font(.callout)
@@ -561,6 +560,12 @@ extension ClawBarView {
                         .textSelection(.enabled)
                 }
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(colorScheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.04))
+            )
         }
     }
 
