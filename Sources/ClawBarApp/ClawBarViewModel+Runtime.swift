@@ -639,8 +639,10 @@ extension ClawBarViewModel {
         statusMessage = "Relaying to OpenClaw…"
         isRelaying = true
         streamingText = ""
+        print("[Relay] isRelaying=true, starting send")
         do {
             let result = try await OpenClawRelay.send(text: text, attachments: attachments) { [weak self] delta in
+                print("[Relay] onDelta called, len=\(delta.count)")
                 self?.streamingText = delta
                 self?.statusMessage = "Streaming…"
             }

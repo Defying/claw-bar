@@ -202,6 +202,9 @@ public enum GatewayRelay {
 
                 // Only process events for our runId
                 let eventRunId = payload["runId"] as? String ?? ""
+                let state = payload["state"] as? String ?? ""
+                let stream = payload["stream"] as? String ?? ""
+                print("[GatewayRelay] event=\(event) state=\(state) stream=\(stream) runId=\(eventRunId.prefix(8)) activeRunId=\(activeRunId.prefix(8)) responseLen=\(responseText.count)")
                 guard eventRunId == activeRunId else { continue }
 
                 // Chat events — the authoritative source for response text
